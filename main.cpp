@@ -55,6 +55,10 @@ int main(int argc, char* argv[])
 
 	app = std::make_unique<Application>();
 
+	glEnable(GL_MULTISAMPLE);
+	glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
+
 	glEnable(GL_PROGRAM_POINT_SIZE);
 	glPointSize(10);
 	glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);

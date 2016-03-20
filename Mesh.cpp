@@ -77,12 +77,16 @@ void Mesh::setup_buffers(void)
 	}
 	no_tris = indices.size();
 
-	std::vector<Point::vector_type> verts_normals(mesh.n_vertices() * 3 * 2);
+	std::vector<Point::vector_type> verts_normals;
+	verts_normals.reserve(mesh.n_vertices() * 3 * 2);
 
+	MyMesh::VertexIter v_it, v_end(mesh.vertices_end());
 	for(auto v : mesh.vertices())
 	{
-		verts_normals.push_back(mesh.point(v));
-		verts_normals.push_back(mesh.normal(v));
+		auto vert = mesh.point(v);
+		auto norm = mesh.normal(v);
+		verts_normals.push_back(vert);
+		verts_normals.push_back(norm);
 	}
 
 	glGenVertexArrays(1, &this->VAO);
@@ -102,8 +106,10 @@ void Mesh::setup_buffers(void)
 	glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*) 0);
 	glEnableVertexAttribArray(0);
+	glVertexAttribDivisor(0, 0);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*) (3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(1);
+	glVertexAttribDivisor(1, 0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
