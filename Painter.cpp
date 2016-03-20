@@ -10,6 +10,7 @@
 #include "Painter.hpp"
 
 Painter::Painter() : grid_shader("./shaders/grid_2d.vert", "./shaders/grid_2d.frag"),
+flat_shader("./shaders/flat_shade.vert", "./shaders/flat_shade.frag"),
 point_shader("./shaders/point.vert", "./shaders/point.frag")
 {
 
@@ -69,23 +70,23 @@ void Painter::paint(Mesh const & mesh)
 	glBindVertexArray(VAO);
 	
 
-	grid_shader.Use();
+	flat_shader.Use();
 	{
 		// Get their uniform location
-		GLint viewLoc = glGetUniformLocation(grid_shader.Program, "view");
-		GLint modelLoc = glGetUniformLocation(grid_shader.Program, "model");
-		GLint projLoc = glGetUniformLocation(grid_shader.Program, "projection");
+		GLint viewLoc = glGetUniformLocation(flat_shader.Program, "view");
+		GLint modelLoc = glGetUniformLocation(flat_shader.Program, "model");
+		GLint projLoc = glGetUniformLocation(flat_shader.Program, "projection");
 		// Pass them to the shaders
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
 
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glBindBuffer(GL_ARRAY_BUFFER, mesh.getVBO());
 		glDrawElements(GL_TRIANGLES, mesh.no_tris, GL_UNSIGNED_INT, 0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
 	point_shader.Use();

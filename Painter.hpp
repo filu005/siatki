@@ -18,6 +18,7 @@ public:
 
 private:
 	Shader grid_shader;
+	Shader flat_shader;
 	Shader point_shader;
 
 	Camera const * camera_ref;// Reference from Application class

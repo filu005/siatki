@@ -5,19 +5,37 @@
 
 Mesh::Mesh()
 {
+	// request vertex normals, so the mesh reader can use normal information
+	// if available
+	mesh.request_vertex_normals();
+	
+	// assure we have vertex normals
+	if (!mesh.has_vertex_normals())
+	{
+		std::cout << "ERROR: Standard vertex property 'Normals' not available!\n";
+		exit(1);
+	}
+
 	OpenMesh::IO::Options iopt;
 	iopt += OpenMesh::IO::Options::VertexNormal;
-	//mesh.request_vertex_normals();
 	if(!OpenMesh::IO::read_mesh(mesh, "./meshes/teapot.obj", iopt))
 	{
 		std::cout << "IO read error\n";
 		exit(1);
 	}
-
-	if(!mesh.has_vertex_normals())
+	
+	// If the file did not provide vertex normals, then calculate them
+	if (!iopt.check(OpenMesh::IO::Options::VertexNormal))
 	{
-		std::cout << "angle weighted vertex normal is required";
-		exit(1);
+		std::cout << "calculating vertex normals from face normals\n";
+		// we need face normals to update the vertex normals
+		mesh.request_face_normals();
+
+		// let the mesh update the normals
+		mesh.update_normals();
+
+		// dispose the face normals, as we don't need them anymore
+		mesh.release_face_normals();
 	}
 
 	no_vertices = mesh.n_vertices();
@@ -25,6 +43,16 @@ Mesh::Mesh()
 	setup_buffers();
 
 	select_neighbour_vertices();
+
+	// don't need the normals anymore? Remove them!
+	mesh.release_vertex_normals();
+
+	// just check if it really works
+	if (mesh.has_vertex_normals())
+	{
+		std::cerr << "Ouch! ERROR! Shouldn't have any vertex normals anymore!\n";
+		exit(1);
+	}
 }
 
 
