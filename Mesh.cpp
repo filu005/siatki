@@ -10,11 +10,11 @@ Mesh::Mesh()
 	mesh.request_vertex_normals();
 	
 	// assure we have vertex normals
-	if (!mesh.has_vertex_normals())
-	{
-		std::cout << "ERROR: Standard vertex property 'Normals' not available!\n";
-		exit(1);
-	}
+	//if (!mesh.has_vertex_normals())
+	//{
+	//	std::cout << "ERROR: Standard vertex property 'Normals' not available!\n";
+	//	exit(1);
+	//}
 
 	OpenMesh::IO::Options iopt;
 	iopt += OpenMesh::IO::Options::VertexNormal;
