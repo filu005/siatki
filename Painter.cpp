@@ -80,8 +80,7 @@ void Painter::paint(Mesh const & mesh)
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
-
+		
 		glBindBuffer(GL_ARRAY_BUFFER, mesh.getVBO());
 		glDrawElements(GL_TRIANGLES, mesh.no_tris, GL_UNSIGNED_INT, 0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);

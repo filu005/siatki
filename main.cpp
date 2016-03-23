@@ -57,7 +57,11 @@ int main(int argc, char* argv[])
 
 	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_CULL_FACE);
-	//glCullFace(GL_BACK);
+	glCullFace(GL_BACK);
+
+	glClearDepth(1.0f);
+	glDepthFunc(GL_LESS);
+	glEnable(GL_DEPTH_TEST);
 
 	glEnable(GL_PROGRAM_POINT_SIZE);
 	glPointSize(10);
@@ -91,7 +95,7 @@ int main(int argc, char* argv[])
 void render(GLFWwindow* window)
 {
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	app->paint();
 
