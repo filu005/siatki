@@ -106,7 +106,7 @@ void render(GLFWwindow* window)
 // Moves/alters the camera positions based on user input
 void do_movement()
 {
-	GLfloat dt = 1.0f / 60.0f;
+	GLfloat dt = 1.0f / 120.0f;
 	Camera& camera = app->camera;
 	// Camera controls
 	if(keys[GLFW_KEY_W])

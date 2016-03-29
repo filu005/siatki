@@ -10,10 +10,12 @@
 class Mesh : public Paintable
 {
 public:
-	using MyMesh = OpenMesh::PolyMesh_ArrayKernelT<>;
 	using TriMesh = OpenMesh::TriMesh_ArrayKernelT<>;
-	using Point = MyMesh::Point;
+	using PolyMesh = OpenMesh::PolyMesh_ArrayKernelT<>;
 	
+	using MyMesh = TriMesh;
+	using Point = MyMesh::Point;
+
 	Mesh();
 
 	void paint(Painter& p) const override final;
@@ -21,6 +23,8 @@ public:
 
 	GLuint getVBO() const { return VBO; }
 	GLuint getNVB1() const { return neighbour_verts_buffer; }
+
+	MyMesh const & getOpenMesh() const { return mesh; }
 
 	//dla ka¿dego wierzcho³ka wyznaczanie otoczenia wierzcho³ków (pierwsza i druga warstwa s¹siednich wierzcho³ków),
 	void select_neighbour_vertices();
@@ -30,7 +34,7 @@ public:
 	unsigned int no_neighbourhood1;
 
 private:
-	TriMesh mesh;
+	MyMesh mesh;
 
 	// OpenGL
 	GLuint EBO;

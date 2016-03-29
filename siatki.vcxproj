@@ -76,6 +76,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="FVMesh.cpp" />
     <ClCompile Include="Grid.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -86,6 +87,7 @@
     <ClInclude Include="Application.hpp" />
     <ClInclude Include="Camera.hpp" />
     <ClInclude Include="constants.hpp" />
+    <ClInclude Include="FVMesh.hpp" />
     <ClInclude Include="Grid.hpp" />
     <ClInclude Include="Mesh.hpp" />
     <ClInclude Include="Paintable.hpp" />

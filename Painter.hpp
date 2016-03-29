@@ -3,6 +3,7 @@
 
 class Grid;
 class Mesh;
+class FVMesh;
 
 class Camera;
 
@@ -13,6 +14,7 @@ public:
 
 	void paint(Grid const & grid);
 	void paint(Mesh const & mesh);
+	void paint(FVMesh const & fvmesh);
 
 	void set_camera(Camera const & camera) { camera_ref = &camera; }
 

@@ -20,7 +20,7 @@ Mesh::Mesh()
 
 	OpenMesh::IO::Options iopt;
 	iopt += OpenMesh::IO::Options::VertexNormal;
-	if(!OpenMesh::IO::read_mesh(mesh, "./meshes/teapot.obj", iopt))
+	if(!OpenMesh::IO::read_mesh(mesh, "./meshes/bunny_simple.obj", iopt))
 	{
 		std::cout << "IO read error\n";
 		exit(1);
@@ -44,17 +44,17 @@ Mesh::Mesh()
 
 	setup_buffers();
 
-	select_neighbour_vertices();
+	//select_neighbour_vertices();
 
 	// don't need the normals anymore? Remove them!
-	mesh.release_vertex_normals();
+	//mesh.release_vertex_normals();
 
 	// just check if it really works
-	if (mesh.has_vertex_normals())
-	{
-		std::cerr << "Ouch! ERROR! Shouldn't have any vertex normals anymore!\n";
-		exit(1);
-	}
+	//if (mesh.has_vertex_normals())
+	//{
+	//	std::cerr << "Ouch! ERROR! Shouldn't have any vertex normals anymore!\n";
+	//	exit(1);
+	//}
 }
 
 
@@ -71,6 +71,7 @@ void Mesh::setup_buffers(void)
 	for(auto f : mesh.faces())
 	{
 		GLuint i = 0;
+
 		for(auto fv : mesh.fv_range(f))
 		{
 			indices[f.idx() * 3 + i] = fv.idx();
@@ -82,8 +83,7 @@ void Mesh::setup_buffers(void)
 	std::vector<Point::vector_type> verts_normals;
 	verts_normals.reserve(mesh.n_vertices() * 3 * 2);
 
-	MyMesh::VertexIter v_it, v_end(mesh.vertices_end());
-	for(auto v : mesh.vertices())
+	for(auto const v : mesh.vertices())
 	{
 		auto vert = mesh.point(v);
 		auto norm = mesh.normal(v);
@@ -97,7 +97,7 @@ void Mesh::setup_buffers(void)
 	//https://mailman.rwth-aachen.de/pipermail/openmesh/2011-April/000527.html
 	glGenBuffers(1, &this->VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
-	glBufferData(GL_ARRAY_BUFFER, 3 * verts_normals.size() * sizeof(Point::value_type), &verts_normals[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, verts_normals.size() * sizeof(Point::value_type) * Point::size_, &verts_normals[0], GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	glGenBuffers(1, &this->EBO);
@@ -120,13 +120,11 @@ void Mesh::setup_buffers(void)
 void Mesh::select_neighbour_vertices()
 {
 	std::vector<Point::vector_type> neighbour_vertices;
-	MyMesh::VertexIter v_it, v_end(mesh.vertices_end());
-	for(v_it = mesh.vertices_begin(); v_it != ++mesh.vertices_begin(); ++v_it)
+	for(auto v_it = mesh.vertices_begin(); v_it != ++mesh.vertices_begin(); ++v_it)
 	{
 		std::cout << v_it->idx() << "\n";
-		neighbour_vertices.push_back(mesh.point(*v_it));
-		MyMesh::VertexVertexIter vv_it;
-		for(vv_it = mesh.vv_iter(*v_it); vv_it.is_valid(); ++vv_it)
+		//neighbour_vertices.push_back(mesh.point(*v_it));
+		for(MyMesh::VertexVertexIter vv_it = mesh.vv_begin(*v_it); vv_it.is_valid(); ++vv_it)
 		{
 			auto vertex = mesh.point(*vv_it);
 			neighbour_vertices.push_back(vertex);
@@ -141,7 +139,7 @@ void Mesh::select_neighbour_vertices()
 
 	glGenBuffers(1, &this->neighbour_verts_buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, this->neighbour_verts_buffer);
-	glBufferData(GL_ARRAY_BUFFER, 3 * neighbour_vertices.size() * sizeof(Point::value_type), &neighbour_vertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, neighbour_vertices.size() * sizeof(Point::value_type) * Point::size_, &neighbour_vertices[0], GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
