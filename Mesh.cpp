@@ -3,7 +3,7 @@
 #include "Painter.hpp"
 #include "Mesh.hpp"
 
-Mesh::Mesh()
+Mesh::Mesh(std::string mesh_filename)
 {
 	// request vertex normals, so the mesh reader can use normal information
 	// if available
@@ -20,7 +20,7 @@ Mesh::Mesh()
 
 	OpenMesh::IO::Options iopt;
 	iopt += OpenMesh::IO::Options::VertexNormal;
-	if(!OpenMesh::IO::read_mesh(mesh, "./meshes/bunny_simple.obj", iopt))
+	if(!OpenMesh::IO::read_mesh(mesh, std::string("./meshes/") + mesh_filename, iopt))
 	{
 		std::cout << "IO read error\n";
 		exit(1);
@@ -120,26 +120,29 @@ void Mesh::setup_buffers(void)
 void Mesh::select_neighbour_vertices()
 {
 	std::vector<Point::vector_type> neighbour_vertices;
-	for(auto v_it = mesh.vertices_begin(); v_it != ++mesh.vertices_begin(); ++v_it)
 	{
-		std::cout << v_it->idx() << "\n";
-		//neighbour_vertices.push_back(mesh.point(*v_it));
-		for(MyMesh::VertexVertexIter vv_it = mesh.vv_begin(*v_it); vv_it.is_valid(); ++vv_it)
+		auto vert_idx = static_cast<unsigned int>(mesh.n_vertices() * 0.2);
+		MyMesh::VertexHandle v_it(vert_idx);
+		MyMesh::VertexVertexIter vv_it;
+
+		for(vv_it = mesh.vv_iter(v_it); vv_it.is_valid(); ++vv_it)
 		{
 			auto vertex = mesh.point(*vv_it);
 			neighbour_vertices.push_back(vertex);
-			std::cout << "\t" << vv_it->idx() << "\n";
 		}
 	}
 
 	no_neighbourhood1 = neighbour_vertices.size();
 
 	// update found vertices to GPU
-	glBindVertexArray(this->VAO);
+	glGenVertexArrays(1, &this->VAO_feature);
+	glBindVertexArray(this->VAO_feature);
 
 	glGenBuffers(1, &this->neighbour_verts_buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, this->neighbour_verts_buffer);
-	glBufferData(GL_ARRAY_BUFFER, neighbour_vertices.size() * sizeof(Point::value_type) * Point::size_, &neighbour_vertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, neighbour_vertices.size() * sizeof(Point::vector_type), &neighbour_vertices[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*) 0);
+	glEnableVertexAttribArray(0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);

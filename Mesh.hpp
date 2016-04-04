@@ -16,13 +16,14 @@ public:
 	using MyMesh = TriMesh;
 	using Point = MyMesh::Point;
 
-	Mesh();
+	Mesh(std::string mesh_filename);
 
 	void paint(Painter& p) const override final;
 	void setup_buffers() override final;
 
 	GLuint getVBO() const { return VBO; }
 	GLuint getNVB1() const { return neighbour_verts_buffer; }
+	GLuint getVAO_feature() const { return VAO_feature; }
 
 	MyMesh const & getOpenMesh() const { return mesh; }
 
@@ -38,5 +39,7 @@ private:
 
 	// OpenGL
 	GLuint EBO;
+	// features
 	GLuint neighbour_verts_buffer;
+	GLuint VAO_feature;
 };

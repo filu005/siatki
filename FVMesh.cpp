@@ -292,3 +292,60 @@ std::vector<unsigned int> FVMesh::face_neighbour_2_ring()
 
 	return features_vector;
 }
+
+std::vector<glm::vec3> FVMesh::edge_border()
+{
+	std::vector<glm::vec3> features_vector;
+
+	// iteruje po wszystkich trójk¹tach
+	for(unsigned int face_idx = 0; face_idx < face_list.size(); ++face_idx)
+	{
+		auto face = face_list[face_idx];
+		
+		// i po ka¿dej jego krawêdzi
+		// tj. trzech parach wierzcho³ków trójk¹ta
+		auto free_edge = std::pair<unsigned int, unsigned int>{ 0, 0 };
+		for(unsigned int face_j_idx = 0; face_j_idx < face_list.size(); ++face_j_idx)
+		{
+			if(face_j_idx == face_idx)
+				continue;
+
+			auto face_j = face_list[face_j_idx];
+
+			// macierrz kombinacji punktów przedstawiaj¹ca
+			// wszystkie mo¿liwe kombinacje stworzonych krawêdzi
+			// z powtórzeniami - tj. krawêdzie mog¹ biec w ka¿d¹ stronê
+			int common_edges[3][3] = { 0 };
+			for(int i = 0; i < 3; ++i)
+			{
+				if(face_j[i] == face.x || face_j[i] == face.y || face_j[i] == face.z)
+				{
+					for(int j = i+1; j < 3; ++j)// bez powtórzeñ?
+					{
+						//if(j == i)
+							//continue;
+						common_edges[i][j] = static_cast<int>(face_j[j] == face.x || face_j[j] == face.y || face_j[j] == face.z);
+					}
+				}
+			}
+
+			int common_edge_count = 0;
+			for(int i = 0; i < 3; ++i)
+				common_edge_count += common_edges[0][i] + common_edges[1][i] + common_edges[2][i];
+
+			// je¿eli nie(!) wszystkie krawêdzie trójk¹ta s¹ dzielone z innymi trójk¹tami
+			if(common_edge_count < 2)
+			for(int i = 0; i < 3; ++i)
+			{
+				for(int j = i + 1; j < 3; ++j)
+				{
+					if(common_edges[i][j] == 0)
+						free_edge = { face[i], face_j[j] };
+					//break?
+				}
+			}
+		}
+	}
+
+	return features_vector;
+}

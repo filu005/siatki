@@ -7,6 +7,7 @@
 #include "Grid.hpp"
 #include "Mesh.hpp"
 #include "FVMesh.hpp"
+#include "HEMesh.hpp"
 #include "Camera.hpp"
 #include "Painter.hpp"
 
@@ -66,6 +67,7 @@ void Painter::paint(Mesh const & mesh)
 	projection = glm::perspective(camera.Zoom, c::aspectRatio, 0.1f, 1000.0f);
 
 	auto const & VAO = mesh.getVAO();
+	auto const & VAO_feature = mesh.getVAO_feature();
 
 	
 	glBindVertexArray(VAO);
@@ -93,6 +95,8 @@ void Painter::paint(Mesh const & mesh)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
+	glBindVertexArray(VAO_feature);
+
 	point_shader.Use();
 	{
 		// Get their uniform location
@@ -111,7 +115,6 @@ void Painter::paint(Mesh const & mesh)
 
 	glBindVertexArray(0);
 }
-
 
 void Painter::paint(FVMesh const & fvmesh)
 {
@@ -133,16 +136,56 @@ void Painter::paint(FVMesh const & fvmesh)
 	point_shader.Use();
 	{
 		// Get their uniform location
-		GLint viewLoc = glGetUniformLocation(grid_shader.Program, "view");
-		GLint modelLoc = glGetUniformLocation(grid_shader.Program, "model");
-		GLint projLoc = glGetUniformLocation(grid_shader.Program, "projection");
+		GLint viewLoc = glGetUniformLocation(point_shader.Program, "view");
+		GLint modelLoc = glGetUniformLocation(point_shader.Program, "model");
+		GLint projLoc = glGetUniformLocation(point_shader.Program, "projection");
+		GLint draw_colorLoc = glGetUniformLocation(point_shader.Program, "draw_color");
 		// Pass them to the shaders
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+		glUniform3f(draw_colorLoc, 0.0f, 0.0f, 1.0f);
 
 		glBindBuffer(GL_ARRAY_BUFFER, fvmesh.getVBO_feature());
 		glDrawArrays(fvmesh.draw_mode, 0, (fvmesh.draw_mode == GL_POINTS) ? fvmesh.no_vertices : fvmesh.no_faces * 3);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
+
+	glBindVertexArray(0);
+}
+
+void Painter::paint(HEMesh const & hemesh)
+{
+	// Create transformations
+	glm::mat4 view;
+	glm::mat4 model;
+	glm::mat4 projection;
+	assert(camera_ref != nullptr);
+	auto const camera = *camera_ref;
+
+	view = camera.GetViewMatrix();
+	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+	projection = glm::perspective(camera.Zoom, c::aspectRatio, 0.1f, 1000.0f);
+
+	auto const & VAO = hemesh.getVAO();
+
+	glBindVertexArray(VAO);
+
+	point_shader.Use();
+	{
+		// Get their uniform location
+		GLint viewLoc = glGetUniformLocation(point_shader.Program, "view");
+		GLint modelLoc = glGetUniformLocation(point_shader.Program, "model");
+		GLint projLoc = glGetUniformLocation(point_shader.Program, "projection");
+		GLint draw_colorLoc = glGetUniformLocation(point_shader.Program, "draw_color");
+		// Pass them to the shaders
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+		glUniform3f(draw_colorLoc, 1.0f, 0.0f, 0.0f);
+
+		glBindBuffer(GL_ARRAY_BUFFER, hemesh.getVBO_feature());
+		glDrawArrays(hemesh.draw_mode, 0, (hemesh.draw_mode == GL_POINTS) ? hemesh.no_vertices : hemesh.no_faces * 3);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
