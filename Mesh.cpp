@@ -20,7 +20,7 @@ Mesh::Mesh()
 
 	OpenMesh::IO::Options iopt;
 	iopt += OpenMesh::IO::Options::VertexNormal;
-	if(!OpenMesh::IO::read_mesh(mesh, "./meshes/teapot.obj", iopt))
+	if(!OpenMesh::IO::read_mesh(mesh, "./meshes/teapot.off", iopt))
 	{
 		std::cout << "IO read error\n";
 		exit(1);
