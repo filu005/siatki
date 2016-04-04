@@ -4,6 +4,7 @@ Application::Application()
 {
 	//_paintables.push_back(&_sim.grid);
 	_paintables.push_back(&_sim.mesh);
+	_paintables.push_back(&_sim.fvmesh);
 
 	_painter.set_camera(camera);
 }

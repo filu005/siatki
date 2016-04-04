@@ -8,7 +8,7 @@ out vec4 color;
 
 void main()
 {
-	vec3 lightPos = vec3(4.0, 2.0, 2.0);
+	vec3 lightPos = vec3(-3.0, 2.0, -0.5);
 	vec3 lightColor = vec3(1.0, 1.0, 1.0);
 	// Diffuse
     vec3 norm = normalize(Normal);
