@@ -20,11 +20,7 @@ Mesh::Mesh(std::string mesh_filename)
 
 	OpenMesh::IO::Options iopt;
 	iopt += OpenMesh::IO::Options::VertexNormal;
-<<<<<<< HEAD
-	if(!OpenMesh::IO::read_mesh(mesh, "./meshes/teapot.off", iopt))
-=======
 	if(!OpenMesh::IO::read_mesh(mesh, std::string("./meshes/") + mesh_filename, iopt))
->>>>>>> origin/master
 	{
 		std::cout << "IO read error\n";
 		exit(1);
