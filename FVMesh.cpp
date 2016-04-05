@@ -301,10 +301,14 @@ std::vector<glm::vec3> FVMesh::edge_border()
 	for(unsigned int face_idx = 0; face_idx < face_list.size(); ++face_idx)
 	{
 		auto face = face_list[face_idx];
-		
+
 		// i po ka¿dej jego krawêdzi
 		// tj. trzech parach wierzcho³ków trójk¹ta
-		auto free_edge = std::pair<unsigned int, unsigned int>{ 0, 0 };
+		auto common_edge = std::pair<unsigned int, unsigned int>{ 0, 0 };
+
+		int face_common_edges[3][3] = { 0 };
+
+		// sprawdzam czy inny trójk¹t ma wspóln¹ krawêdŸ z 'moim' trójk¹tem
 		for(unsigned int face_j_idx = 0; face_j_idx < face_list.size(); ++face_j_idx)
 		{
 			if(face_j_idx == face_idx)
@@ -316,11 +320,11 @@ std::vector<glm::vec3> FVMesh::edge_border()
 			// wszystkie mo¿liwe kombinacje stworzonych krawêdzi
 			// z powtórzeniami - tj. krawêdzie mog¹ biec w ka¿d¹ stronê
 			int common_edges[3][3] = { 0 };
-			for(int i = 0; i < 3; ++i)
+			for(int i = 0; i < 2; ++i)
 			{
 				if(face_j[i] == face.x || face_j[i] == face.y || face_j[i] == face.z)
 				{
-					for(int j = i+1; j < 3; ++j)// bez powtórzeñ?
+					for(int j = i + 1; j < 3; ++j)// bez powtórzeñ, wpisuje tylko do lewej dolnej czêœci macierzy. reszta jest 0
 					{
 						//if(j == i)
 							//continue;
@@ -330,18 +334,46 @@ std::vector<glm::vec3> FVMesh::edge_border()
 			}
 
 			int common_edge_count = 0;
-			for(int i = 0; i < 3; ++i)
+			for (int i = 0; i < 3; ++i)
 				common_edge_count += common_edges[0][i] + common_edges[1][i] + common_edges[2][i];
 
-			// je¿eli nie(!) wszystkie krawêdzie trójk¹ta s¹ dzielone z innymi trójk¹tami
-			if(common_edge_count < 2)
-			for(int i = 0; i < 3; ++i)
+			// je¿eli krawêdzie trójk¹ta s¹ dzielone z drugim trójk¹tem
+			if (common_edge_count > 0)
 			{
-				for(int j = i + 1; j < 3; ++j)
+				for (int i = 0; i < 2; ++i)
 				{
-					if(common_edges[i][j] == 0)
-						free_edge = { face[i], face_j[j] };
-					//break?
+					for (int j = i + 1; j < 3; ++j)
+					{
+						if (common_edges[i][j] == 1)// teraz znajduje te wspólne
+						{
+							common_edge = { face[i], face_j[j] };
+							face_common_edges[i][j] = 1;
+						}
+						// break. tylko jak mam wyskoczyæ z tej pêli?!
+					}
+				}
+			}
+		}
+
+		//if (common_edge.first != 0 && common_edge.second != 0)
+		//{
+		//	auto vert1 = vertex_list[common_edge.first];
+		//	auto vert2 = vertex_list[common_edge.second];
+		//	std::cout << "istnieje wspólny brzeg dla wierzcho³ków: " << common_edge.first << ", " << common_edge.second << "\n";
+		//	features_vector.push_back(vert1);
+		//	features_vector.push_back(vert2);
+		//}
+
+		for (int i = 0; i < 2; ++i)
+		{
+			for (int j = i + 1; j < 3; ++j)
+			{
+				if (face_common_edges[i][j] == 0)// teraz znajduje te wolne
+				{
+					auto vert1 = vertex_list[face[i]];
+					auto vert2 = vertex_list[face[j]];
+					features_vector.push_back(vert1);
+					features_vector.push_back(vert2);
 				}
 			}
 		}

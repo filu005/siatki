@@ -197,3 +197,35 @@ std::vector<unsigned int> HEMesh::face_neighbour_2_ring()
 
 	return features_vector;
 }
+
+std::vector<glm::vec3> HEMesh::edge_border()
+{
+	std::vector<glm::vec3> features_vector;
+
+	// Find this edge and then flip it
+	for (MyMesh::HalfedgeIter he_it = mesh.halfedges_begin(); he_it != mesh.halfedges_end(); ++he_it)
+	{
+		MyMesh::HalfedgeHandle he_h(*he_it);
+		if(mesh.is_boundary(he_h))
+		{
+			auto vertex1 = mesh.point(mesh.to_vertex_handle(he_h));
+			auto vertex2 = mesh.point(mesh.from_vertex_handle(he_h));
+			features_vector.push_back(glm::vec3(vertex1[0], vertex1[1], vertex1[2]));
+			features_vector.push_back(glm::vec3(vertex2[0], vertex2[1], vertex2[2]));
+		}
+	}
+
+	return features_vector;
+}
+
+void HEMesh::flip_edges()
+{
+	auto edge_idx = static_cast<unsigned int>(mesh.n_edges() * 0.3);
+	// Find this edge and then flip it
+	MyMesh::EdgeHandle e_h(edge_idx);
+	if (!mesh.is_boundary(e_h))
+	{
+		// Flip edge
+		mesh.flip(e_h);
+	}
+}

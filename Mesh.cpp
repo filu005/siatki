@@ -44,8 +44,6 @@ Mesh::Mesh(std::string mesh_filename)
 
 	setup_buffers();
 
-	//select_neighbour_vertices();
-
 	// don't need the normals anymore? Remove them!
 	//mesh.release_vertex_normals();
 
