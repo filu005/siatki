@@ -43,10 +43,8 @@ public:
 	std::vector<unsigned int> face_neighbour_1_ring();
 	std::vector<unsigned int> face_neighbour_2_ring();
 
-	// TEGO JESZCZE NIE MA!
 	std::vector<glm::vec3> edge_border();
 
-	// mesh modifiers - TEGO JESZCZE NIE MA!
 	void flip_edges();
 
 private:

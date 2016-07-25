@@ -327,7 +327,7 @@ std::vector<glm::vec3> FVMesh::edge_border()
 					for(int j = i + 1; j < 3; ++j)// bez powtórzeñ, wpisuje tylko do lewej dolnej czêœci macierzy. reszta jest 0
 					{
 						//if(j == i)
-							//continue;
+						//	continue;
 						common_edges[i][j] = static_cast<int>(face_j[j] == face.x || face_j[j] == face.y || face_j[j] == face.z);
 					}
 				}
@@ -380,4 +380,82 @@ std::vector<glm::vec3> FVMesh::edge_border()
 	}
 
 	return features_vector;
+}
+
+void FVMesh::flip_edges()
+{
+	// pick face index(!) somewhere from the middle
+	auto face_idx_0 = static_cast<unsigned int>(face_list.size() * 0.3);
+	int face_edges[6][2]; // globalny indeks wierzcho³ka, lokalny (odnosz¹cy siê konkretnie do trójk¹ta) indeks wierzcho³ka
+	bool flipped = false;
+
+	face_edges[0][0] = face_list[face_idx_0][0];
+	face_edges[0][1] = 0;
+	face_edges[1][0] = face_list[face_idx_0][1];
+	face_edges[1][1] = 1;
+	face_edges[2][0] = face_list[face_idx_0][1];
+	face_edges[2][1] = 1;
+	face_edges[3][0] = face_list[face_idx_0][2];
+	face_edges[3][1] = 2;
+	face_edges[4][0] = face_list[face_idx_0][2];
+	face_edges[4][1] = 2;
+	face_edges[5][0] = face_list[face_idx_0][0];
+	face_edges[5][1] = 0;
+
+	for(int i = 0; (i < 3) && (flipped == false); ++i)
+	{
+		auto vert_idx = face_list[face_idx_0][i];
+		auto p1 = face_edges[i * 2][0];
+		auto p1_idx = face_edges[i * 2][1];
+		auto p2 = face_edges[(i * 2) + 1][0];
+		auto p2_idx = face_edges[(i * 2) + 1][1];
+		auto p3_idx = (p1_idx + p2_idx == 3 ? 0 : (p1_idx + p2_idx == 2 ? 1 : 2));
+
+		for(unsigned int face_idx = 0; (face_idx < face_list.size()) && (flipped == false); ++face_idx)
+		{
+			auto face = face_list[face_idx];
+
+			auto flip = [&](int const idx1, int const idx2, int const f1_idx3, int const f2_idx3)->void
+			{
+				face_list[face_idx_0][idx1] = face_list[face_idx][f2_idx3];
+				face_list[face_idx][idx2] = face_list[face_idx_0][f1_idx3];
+			};
+
+			if(face_idx == face_idx_0)
+				continue;
+
+			if((face.x == p1 || face.y == p1 || face.z == p1) && 
+			   (face.x == p2 || face.y == p2 || face.z == p2))
+			{
+				if(face.x == p1)
+				{
+					if(face.y == p2)
+						flip(p1_idx, 1, p3_idx, 2);
+					else // face.z == p2
+					{
+						// p1_idx, face_z_idx, p3_idx, face_y_idx
+						flip(p1_idx, 2, p3_idx, 1);
+					}
+				}
+				else if(face.y == p1)
+				{
+					if(face.x == p2)
+						flip(p1_idx, 0, p3_idx, 2);
+					else // face.z == p2
+						flip(p1_idx, 2, p3_idx, 0);
+				}
+				else // face.z == p1
+				{
+					if(face.x == p2)
+						flip(p1_idx, 0, p3_idx, 1);
+					else // face.y == p2
+						flip(p1_idx, 1, p3_idx, 0);
+				}
+
+				flipped = true;
+				break;
+			}
+			
+		}
+	}
 }
